@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SHSSS Headlines Submission</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { background-color: #fafafa; }
+    .airbnb-red { color: #FF385C; }
+    .bg-airbnb-red { background-color: #FF385C; }
+  </style>
+</head>
+<body class="font-sans">
+
+  <!-- Header -->
+  <header class="bg-white shadow-md sticky top-0 z-10">
+    <div class="max-w-3xl mx-auto px-4 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold airbnb-red">Submit Headline</h1>
+      <a href="index.html" class="bg-airbnb-red text-white px-4 py-2 rounded-lg shadow hover:bg-red-600 transition">
+        Home
+      </a>
+    </div>
+  </header>
+
+  <!-- Form -->
+  <main class="max-w-3xl mx-auto px-4 py-6">
+    <form id="headlineForm" class="bg-white p-6 rounded-2xl shadow-md space-y-4">
+      <div>
+        <label class="block font-semibold mb-1">Image Link (URL)</label>
+        <input type="url" id="url" placeholder="https://example.com/image.jpg" required class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Title</label>
+        <input type="text" id="title" required class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Description</label>
+        <textarea id="description" rows="3" required class="w-full border rounded p-2"></textarea>
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Your Name</label>
+        <input type="text" id="name" required class="w-full border rounded p-2">
+      </div>
+      <div>
+        <label class="block font-semibold mb-1">Email</label>
+        <input type="email" id="email" required class="w-full border rounded p-2">
+      </div>
+      <button type="submit" class="w-full bg-airbnb-red text-white py-3 rounded-lg font-semibold hover:bg-red-600 transition">
+        Submit
+      </button>
+    </form>
+    <p id="status" class="mt-4 text-center text-gray-600"></p>
+  </main>
+
+  <script>
+    const BOT_TOKEN = "8430303546:AAGiDuA3R53y_J0yFigXz4_vZ7lzhWz1ylA";
+    const CHAT_ID = "7789224631";
+
+    document.getElementById("headlineForm").addEventListener("submit", async function(event) {
+      event.preventDefault();
+      const status = document.getElementById("status");
+      status.textContent = "Sending...";
+
+      const url = document.getElementById("url").value;
+      const title = document.getElementById("title").value;
+      const description = document.getElementById("description").value;
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+
+      // Format JSON-like message
+      const jsonMsg = {
+        url: url,
+        title: title,
+        caption: description,
+        submitted_by: name,
+        email: email
+      };
+
+      const caption = `📰 *New Headline Submission*
+\`\`\`json
+${JSON.stringify(jsonMsg, null, 2)}
+\`\`\``;
+
+      try {
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            chat_id: CHAT_ID,
+            text: caption,
+            parse_mode: "Markdown"
+          })
+        });
+
+        if (response.ok) {
+          status.textContent = "✅ Submitted successfully!";
+          document.getElementById("headlineForm").reset();
+        } else {
+          status.textContent = "❌ Failed to send. Try again.";
+        }
+      } catch (err) {
+        status.textContent = "⚠️ Error: " + err.message;
+      }
+    });
+  </script>
+
+</body>
+</html>
